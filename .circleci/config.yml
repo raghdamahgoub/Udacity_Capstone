@@ -115,7 +115,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=capstone-backend \
               --stack-name "capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameters .circleci/files/parameters.json  
+              --parameters-file .circleci/files/parameters.json  
       - run:
           name: Add back-end ip to ansible inventory
           command: |
