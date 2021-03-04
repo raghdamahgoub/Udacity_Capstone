@@ -1,0 +1,12 @@
+---
+- name: "Update Packages"
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: "Install NodeJS and NPM"
+  become: yes
+  apt:
+    name: ['nodejs', 'npm']
+    state: latest
+    update_cache: yes

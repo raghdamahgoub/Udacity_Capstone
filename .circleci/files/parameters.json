@@ -1,0 +1,30 @@
+[
+	{
+		"ParameterKey": "EnvironmentName",
+		"ParameterValue": "UdacityProject"
+	},
+	{
+		"ParameterKey": "VpcCIDR",
+		"ParameterValue": "10.0.0.0/16"
+	},
+	{
+		"ParameterKey": "PublicSubnetCIDR",
+		"ParameterValue": "10.0.0.0/24"
+	},
+	{
+		"ParameterKey": "EnvironmentName",
+		"ParameterValue": "UdacityProject"
+    },
+	{
+        "ParameterKey": "WebAppServersMinSize",
+        "ParameterValue": "1"
+      },
+      {
+        "ParameterKey": "WebAppServersMaxSize",
+        "ParameterValue": "4"
+      },
+	  {
+		"ParameterKey": "WorkflowID",
+		"ParameterValue": "jdiofjerfioeiovdo13249550"
+	  }
+]

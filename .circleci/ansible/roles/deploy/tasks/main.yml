@@ -1,0 +1,36 @@
+---
+- name: "Install NodeJS and NPM"
+  become: true
+  apt:
+    name: ['nodejs', 'npm']
+    state: latest
+    update_cache: yes
+
+- name: "Copy files to EC2 instance"
+  copy:
+    src: /root/project/backend.tar.gz
+    dest: /home/ubuntu
+
+- name: "Unzip files for project"
+  become: true
+  shell: |
+    cd /home/ubuntu
+    tar -xzvf /home/ubuntu/backend.tar.gz
+
+- name: "Install server packages"
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    npm install
+
+- name: "Build server"
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+
+- name: "Start server"
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    nohup npm start > /dev/null 2>&1 &

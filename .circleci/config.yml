@@ -1,9 +1,28 @@
-# Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-version: 2
+version: 2.1
+
+commands:
+  destroy-environment:
+    description: Destroy InfraStack and ServerStack cloudformation stacks given a workflow ID.  
+    steps:
+      - run:
+          name: Install AWS CLI
+          when: on_fail
+          command: |
+            if ! [ -x "$(command -v aws)" ]; then
+            pip install awscli
+            else
+            echo "AWS CLI already installed"
+            fi
+      - run:
+          name: Delete stacks
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack \
+            --stack-name capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack \
+            --stack-name InfraStack-${CIRCLE_WORKFLOW_ID:0:7}           
 jobs:
-  build:
+  build-lint:
     docker:
     # Use the same Docker base as the project
       - image: python:3.7.3-stretch
@@ -35,3 +54,178 @@ jobs:
           command: |
             . venv/bin/activate
             make lint
+  build-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Back-end build
+          command: |
+            cd ./backend
+            npm i
+            npm run build
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+
+  test-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Test Backend
+          command: |
+            cd ./backend
+            npm i
+            npm run test
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Scan Backend
+          command: |
+            cd ./backend
+            npm i
+            npm audit --audit-level=critical
+
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y install tar 
+            yum -y install gzip
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=capstone-backend \
+              --stack-name "capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            echo -e "[web]\n" > ./.circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:project,Values=capstone-backend" \
+            --output text >> ./.circleci/ansible/inventory.txt
+            cat ./.circleci/ansible/inventory.txt
+      - run:
+          name: Add back-end ip only to IP file for later use
+          command: |
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:project,Values=capstone-backend" \
+            --output text > ./.circleci/ansible/ip.txt
+            cat ./.circleci/ansible/ip.txt
+      - persist_to_workspace:
+          root: .circleci/ansible/
+          paths:
+            - inventory.txt
+            - ip.txt
+      - destroy-environment
+
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["1c:1b:08:74:59:7b:aa:09:6d:1b:f9:3e:7c:86:0f:bf"]
+      - attach_workspace:
+          at: .circleci/ansible/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add --update tar
+            apk add --update gzip
+      - run:
+          name: Configure server
+          command: |
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/configure-server.yml
+      - destroy-environment
+
+      - attach_workspace:
+          at: .circleci/ansible/
+      - run:
+          name: Get backend url
+          command: |
+            backendIP=`cat ./.circleci/ansible/ip.txt`
+            export API_URL="http://${backendIP}:8080"
+            cd ./frontend
+            touch ./.env
+            echo API_URL=$API_URL >> ./.env
+            echo $API_URL                
+ 
+  deploy-backend:
+    docker:
+      - image: "python:3.7-alpine3.11"
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["1c:1b:08:74:59:7b:aa:09:6d:1b:f9:3e:7c:86:0f:bf"]
+      - attach_workspace:
+          at: .circleci/ansible/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add --update tar
+            apk add --update gzip
+            apk add --update curl
+            apk add --update openssh-client
+      - run:
+          name: Set Enviroment variables 
+          command: |
+            cd ./backend 
+            touch .env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ./.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ./.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ./.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ./.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ./.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ./.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ./.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ./.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ./.env
+            cd ../
+            tar -czvf /root/project/backend.tar.gz backend
+      - run:
+          name: Deploy backend
+          command: |
+            cd ./.circleci/ansible
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy-environment
+ 
+workflows:
+  default:
+    jobs:
+      - build-lint
+      - build-backend
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - deploy-infrastructure:
+          requires: [test-backend,scan-backend]
+          filters:
+            branches:
+              only: [main]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]

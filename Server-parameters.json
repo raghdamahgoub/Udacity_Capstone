@@ -1,0 +1,14 @@
+[
+	{
+		"ParameterKey": "EnvironmentName",
+		"ParameterValue": "UdacityProject"
+    },
+	{
+        "ParameterKey": "WebAppServersMinSize",
+        "ParameterValue": "1"
+      },
+      {
+        "ParameterKey": "WebAppServersMaxSize",
+        "ParameterValue": "4"
+      }
+]
