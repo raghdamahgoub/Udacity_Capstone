@@ -10,10 +10,14 @@ Parameters:
         Description: Maximum Instances Number for Autoscaling Group
         Type: String
         Default: '4'
+    ID:
+    Description: Unique identifier.
+    Type: String
 Resources:
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      GroupName: !Sub capstone-${ID}
       GroupDescription: Allow http to our hosts and SSH from local only
       VpcId:
         Fn::ImportValue:
