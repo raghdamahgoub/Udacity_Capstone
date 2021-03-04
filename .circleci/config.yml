@@ -20,8 +20,7 @@ commands:
             aws cloudformation delete-stack \
             --stack-name capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack \
-            --stack-name InfraStack-${CIRCLE_WORKFLOW_ID:0:7} \
-            --region="us-west-2"         
+            --stack-name InfraStack-${CIRCLE_WORKFLOW_ID:0:7} 
 jobs:
   build-lint:
     docker:
@@ -116,8 +115,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=capstone-backend \
               --stack-name "capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameters parameters.json ID="capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --region="us-west-2"
+              --parameters .circleci/files/parameters.json  
       - run:
           name: Add back-end ip to ansible inventory
           command: |
