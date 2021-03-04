@@ -12,10 +12,6 @@
 		"ParameterValue": "10.0.0.0/24"
 	},
 	{
-		"ParameterKey": "EnvironmentName",
-		"ParameterValue": "UdacityProject"
-    },
-	{
         "ParameterKey": "WebAppServersMinSize",
         "ParameterValue": "1"
       },
