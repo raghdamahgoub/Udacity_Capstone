@@ -112,7 +112,6 @@ jobs:
           paths:
             - inventory.txt
             - ip.txt
-      - destroy-environment
 
   configure-infrastructure:
     docker:
@@ -133,7 +132,6 @@ jobs:
           name: Configure server
           command: |
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/configure-server.yml
-      - destroy-environment
 
       - attach_workspace:
           at: .circleci/ansible/
@@ -185,7 +183,6 @@ jobs:
           command: |
             cd ./.circleci/ansible
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environment
  
 workflows:
   default:
