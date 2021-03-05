@@ -1,28 +1,7 @@
 version: 2.1
-
-commands:
-  destroy-environment:
-    description: Destroy InfraStack and ServerStack cloudformation stacks given a workflow ID.  
-    steps:
-      - run:
-          name: Install AWS CLI
-          when: on_fail
-          command: |
-            if ! [ -x "$(command -v aws)" ]; then
-            pip install awscli
-            else
-            echo "AWS CLI already installed"
-            fi
-      - run:
-          name: Delete stacks
-          when: on_fail
-          command: |
-            aws cloudformation delete-stack \
-            --stack-name capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack \
-            --stack-name InfraStack-${CIRCLE_WORKFLOW_ID:0:7} 
+ 
 jobs:
-  build-lint:
+  Linting:
     docker:
     # Use the same Docker base as the project
       - image: python:3.7.3-stretch
@@ -84,38 +63,33 @@ jobs:
             cd ./backend
             npm i
             npm run test
-  scan-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [backend-build]
-      - run:
-          name: Scan Backend
-          command: |
-            cd ./backend
-            npm i
-            npm audit --audit-level=critical
+#  scan-backend:
+#    docker:
+#      - image: circleci/node:13.8.0
+#    steps:
+#      - checkout
+#      - restore_cache:
+#          keys: [backend-build]
+#      - run:
+#          name: Scan Backend
+#          command: |
+#            cd ./backend
+#            npm i
+#            npm audit --audit-level=critical
 
-  deploy-infrastructure:
+  deploy-Server-Infrastructure:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: |
-            yum -y install tar 
-            yum -y install gzip
-      - run:
-          name: Ensure back-end infrastructure exists
+          name: Deploy Server Infrastructure 
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --tags project=capstone-backend \
-              --stack-name "capstone-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides EnvironmentName="${CIRCLE_WORKFLOW_ID:0:7}"  
+              --template-file .circleci/files/Server.yml \
+              --tags project=capstone-server \
+              --stack-name "capstone-server-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides EnvironmentName=UdacityProject WebAppServersMinSize=1 WebAppServersMaxSize=4
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -216,14 +190,14 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-lint
+      - Linting
       - build-backend
       - test-backend:
           requires: [build-backend]
       - scan-backend:
           requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [test-backend,scan-backend]
+      - deploy-Server-Infrastructure:
+          requires: [test-backend]
           filters:
             branches:
               only: [main]

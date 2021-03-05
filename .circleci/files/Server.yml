@@ -10,9 +10,6 @@ Parameters:
         Description: Maximum Instances Number for Autoscaling Group
         Type: String
         Default: '4'
-    ID:
-    Description: Unique identifier.
-    Type: String
 Resources:
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -52,11 +49,10 @@ Resources:
           sudo curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
           sudo chmod +x ./kubectl
           sudo mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
-          sudo kubectl version --short --client
-#          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 
-#          chmod +x minikube 
-#          sudo mv minikube /usr/local/bin/
-#          minikube start
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube 
+          chmod +x minikube 
+          minikube start
           
       ImageId: ami-07b4f3c02c7f83d59
       KeyName: udacity
