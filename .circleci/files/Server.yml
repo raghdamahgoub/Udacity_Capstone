@@ -59,6 +59,8 @@ Resources:
           minikube status
           kubectl create deployment hello-node --image=raghdam/capstoneproject
           kubectl expose deployment hello-node --type=NodePort --port=8080
+          kubectl get pods
+          kubectl get svc
 
           
       ImageId: ami-07b4f3c02c7f83d59
