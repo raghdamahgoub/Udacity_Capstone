@@ -101,7 +101,6 @@ jobs:
             echo -e "[web]\n" > ./.circleci/ansible/inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project,Values=capstone-backend" \
             --output text >> ./.circleci/ansible/inventory.txt
             cat ./.circleci/ansible/inventory.txt
       - run:
@@ -109,7 +108,6 @@ jobs:
           command: |
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project,Values=capstone-backend" \
             --output text > ./.circleci/ansible/ip.txt
             cat ./.circleci/ansible/ip.txt
       - persist_to_workspace:
@@ -118,45 +116,13 @@ jobs:
             - inventory.txt
             - ip.txt
 
-  configure-infrastructure:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: ["1c:1b:08:74:59:7b:aa:09:6d:1b:f9:3e:7c:86:0f:bf"]
-      - attach_workspace:
-          at: .circleci/ansible/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-            apk add --update tar
-            apk add --update gzip
-      - run:
-          name: Configure server
-          command: |
-            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/configure-server.yml
-
-      - attach_workspace:
-          at: .circleci/ansible/
-      - run:
-          name: Get backend url
-          command: |
-            backendIP=`cat ./.circleci/ansible/ip.txt`
-            export API_URL="http://${backendIP}:8080"
-            cd ./frontend
-            touch ./.env
-            echo API_URL=$API_URL >> ./.env
-            echo $API_URL                
- 
   deploy-backend:
     docker:
       - image: "python:3.7-alpine3.11"
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["1c:1b:08:74:59:7b:aa:09:6d:1b:f9:3e:7c:86:0f:bf"]
+          fingerprints: ["7c:c3:63:49:35:da:d8:c6:2c:22:5d:f9:17:59:4a:e1"]
       - attach_workspace:
           at: .circleci/ansible/
       - run:
@@ -167,22 +133,7 @@ jobs:
             apk add --update gzip
             apk add --update curl
             apk add --update openssh-client
-      - run:
-          name: Set Enviroment variables 
-          command: |
-            cd ./backend 
-            touch .env
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ./.env
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ./.env
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ./.env
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ./.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> ./.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> ./.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ./.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ./.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ./.env
-            cd ../
-            tar -czvf /root/project/backend.tar.gz backend
+
       - run:
           name: Deploy backend
           command: |
@@ -203,5 +154,5 @@ workflows:
           filters:
             branches:
               only: [main]
-      - configure-infrastructure:
+      - deploy-backend:
           requires: [deploy-Server-Infrastructure]
