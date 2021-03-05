@@ -63,19 +63,19 @@ jobs:
             cd ./backend
             npm i
             npm run test
-#  scan-backend:
-#    docker:
-#      - image: circleci/node:13.8.0
-#    steps:
-#      - checkout
-#      - restore_cache:
-#          keys: [backend-build]
-#      - run:
-#          name: Scan Backend
-#          command: |
-#            cd ./backend
-#            npm i
-#            npm audit --audit-level=critical
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Scan Backend
+          command: |
+            cd ./backend
+            npm i
+            npm audit --audit-level=critical
 
   deploy-Server-Infrastructure:
     docker:
@@ -197,7 +197,7 @@ workflows:
       - scan-backend:
           requires: [build-backend]
       - deploy-Server-Infrastructure:
-          requires: [test-backend]
+          requires: [test-backend,scan-backend]
           filters:
             branches:
               only: [main]
