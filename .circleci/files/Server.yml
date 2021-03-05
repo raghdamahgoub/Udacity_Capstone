@@ -62,7 +62,7 @@ Resources:
       KeyName: udacity
       SecurityGroups:
        - Ref: WebServerSecurityGroup
-      InstanceType: t2.medium
+      InstanceType: t3.small
       BlockDeviceMappings:
        - DeviceName: "/dev/sdk"
          Ebs:
