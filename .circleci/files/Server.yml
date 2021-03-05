@@ -14,7 +14,6 @@ Resources:
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub capstone-${ID}
       GroupDescription: Allow http to our hosts and SSH from local only
       VpcId:
         Fn::ImportValue:
