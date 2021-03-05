@@ -83,6 +83,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: |
+            yum -y install tar 
+            yum -y install gzip
+      - run:
           name: Deploy Server Infrastructure 
           command: |
             aws cloudformation deploy \
