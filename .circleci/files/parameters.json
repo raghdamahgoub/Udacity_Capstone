@@ -10,17 +10,6 @@
 	{
 		"ParameterKey": "PublicSubnetCIDR",
 		"ParameterValue": "10.0.0.0/24"
-	},
-	{
-        "ParameterKey": "WebAppServersMinSize",
-        "ParameterValue": "1"
-      },
-      {
-        "ParameterKey": "WebAppServersMaxSize",
-        "ParameterValue": "4"
-      },
-	  {
-		"ParameterKey": "WorkflowID",
-		"ParameterValue": "jdiofjerfioeiovdo13249550"
-	  }
+	}
+    
 ]
