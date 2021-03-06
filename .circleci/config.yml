@@ -33,6 +33,7 @@ jobs:
           command: |
             . venv/bin/activate
             make lint
+  
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -63,6 +64,7 @@ jobs:
             cd ./backend
             npm i
             npm run test
+            
   scan-backend:
     docker:
       - image: circleci/node:13.8.0

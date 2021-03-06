@@ -15,8 +15,10 @@
       src: /root/project/.circleci/files/run_pod.sh
       dest: /home/ubuntu/
       force : yes
+
 - name: chmod +x /root/project/.circleci/files/run_pod.sh
-  command: chmod +x /root/project/.circleci/files/run_pod.sh
+  file: dest=/root/project/.circleci/files/run_pod.sh mode=a+x
+  
 - name: Install kubectl
     script:
      cmd: run_pod.sh
