@@ -16,13 +16,13 @@
       dest: /home/ubuntu/
       force : yes
 
-- name: make run_pod.sh executable by changing permissions 
-  file: dest=./.circleci/ansible/run_pod.sh mode=a+x
+ -  name: make run_pod.sh executable by changing permissions 
+    file: dest=./.circleci/ansible/run_pod.sh mode=a+x
 
-- name: Running pod using script
-  script:
-     cmd: run_pod.sh
-     chdir: /home/ubuntu/ansible/
+  - name: Running pod using script
+    script:
+      cmd: run_pod.sh
+      chdir: /home/ubuntu/ansible/
 
         
 
