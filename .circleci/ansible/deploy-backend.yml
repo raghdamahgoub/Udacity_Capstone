@@ -16,13 +16,11 @@
       force : yes
 
   - name: make run_pod.sh executable by changing permissions 
-    file: dest=/home/ubuntu/root/project/ansible/run_pod.sh mode=a+x
+    file: dest=/home/ubuntu/run_pod.sh mode=a+x
 
   - name: Running pod using script
-    script:
-      cmd: run_pod.sh
-      chdir: /home/ubuntu/root/project/ansible/
-
+    shell: sudo /home/ubuntu/run_pod.sh
+    
         
 
 
