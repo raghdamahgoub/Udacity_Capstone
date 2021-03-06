@@ -1,4 +1,3 @@
----
 - name: "configuration play." 
   hosts: web
   user: ubuntu
@@ -9,10 +8,11 @@
     - ansible_stdout_callback: yaml
 
   tasks:
-  # Copy Project Files
+# Install  kubectl using script 
+# Copy Project Files
   - name: copy project files to ec2 
     copy:
-      src: ./.circleci/ansible/run_pod.sh
+      src: /ansible/run_pod.sh
       dest: /home/ubuntu/
       force : yes
 

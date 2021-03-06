@@ -103,17 +103,17 @@ jobs:
             echo -e "[web]\n" > ./.circleci/ansible/inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text >> ./.circleci/ansible/inventory.txt
-            cat ./.circleci/ansible/inventory.txt
+            --output text >> ansible/inventory.txt
+            cat ansible/inventory.txt
       - run:
           name: Add back-end ip only to IP file for later use
           command: |
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text > ./.circleci/ansible/ip.txt
-            cat ./.circleci/ansible/ip.txt
+            --output text > ansible/ip.txt
+            cat ansible/ip.txt
       - persist_to_workspace:
-          root: .circleci/ansible/
+          root: ansible
           paths:
             - inventory.txt
             - ip.txt
@@ -126,7 +126,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["7c:c3:63:49:35:da:d8:c6:2c:22:5d:f9:17:59:4a:e1"]
       - attach_workspace:
-          at: .circleci/ansible/
+          at: ansible
       - run:
           name: Install dependencies
           command: |
@@ -139,7 +139,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/deploy-backend.yml
+            cd ../
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /ansible/inventory.txt /ansible/deploy-backend.yml
 workflows:
   default:
     jobs:
