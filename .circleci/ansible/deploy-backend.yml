@@ -8,16 +8,16 @@
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
 
-
   tasks:
+  # Copy Project Files
   - name: copy project files to ec2 
     copy:
-      src: ./.circleci/ansible/run_pod.sh
+      src: /root/project/.circleci/ansible/run_pod.sh
       dest: /home/ubuntu/
       force : yes
 
   - name: make run_pod.sh executable by changing permissions 
-    file: dest=./.circleci/ansible/run_pod.sh mode=a+x
+    file: dest=/home/ubuntu/ansible/run_pod.sh mode=a+x
 
   - name: Running pod using script
     script:
