@@ -92,9 +92,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/Server.yml \
-              --tags project=capstone-server \
-              --stack-name "capstone-server" \
-              --parameter-overrides EnvironmentName=UdacityProject WebAppServersMinSize=1 WebAppServersMaxSize=4
+              --tags project=capstone-server-blue \
+              --stack-name "capstone-server-blue" \
+              --parameter-overrides EnvironmentName=UdacityProject-blue WebAppServersMinSize=1 WebAppServersMaxSize=4
       - run:
           name: Add back-end ip to ansible inventory
           command: |
