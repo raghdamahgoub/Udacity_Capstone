@@ -12,7 +12,7 @@
   # Copy Project Files
   - name: copy project files to ec2 
     copy:
-      src: .circleci/ansible/run_pod.sh
+      src: ./.circleci/ansible/run_pod.sh
       dest: /home/ubuntu/
       force : yes
 
