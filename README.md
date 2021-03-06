@@ -4,10 +4,10 @@ Public GitHub URL
 GitHub URL:https://github.com/Raghda-aws/Udacity_Capstone.git
 
 
-#Propose and Scope the Project
+# Propose and Scope the Project
 Capstone Project using Hello World! My Name is Raghda using AWS cloudformation/Circleci/Ansible to copy files to the EC2 instance 
-#CircleCI Blue/Green
-#PipeLine stages,
+# CircleCI Blue/Green
+# PipeLine stages,
 1.Linting stage
 2.Test installing packages.
 3.Scanning the installed packages
@@ -15,7 +15,7 @@ Capstone Project using Hello World! My Name is Raghda using AWS cloudformation/C
 4.Deploy Server using Ansible
 
 
-PipeLine Workflows
+# PipeLine Workflows
 - Linting
       - build-backend
       - test-backend:
@@ -29,7 +29,7 @@ PipeLine Workflows
               only: [main]
       - deploy-backend:
           requires: [deploy-Server-Infrastructure]
-Blue Branch :
+# Blue Branch :
 1.Deployed Blue VPC-Stack
 2.Deployed Blue Server stack
 3.Action to be perfromed before merge to allow the blue code to be updated in the Production.
