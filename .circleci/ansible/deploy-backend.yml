@@ -12,17 +12,17 @@
   tasks:
   - name: copy project files to ec2 
     copy:
-      src: /root/project/.circleci/files/run_pod.sh
+      src: ./.circleci/ansible/run_pod.sh
       dest: /home/ubuntu/
       force : yes
 
-- name: chmod +x /root/project/.circleci/files/run_pod.sh
-  file: dest=/root/project/.circleci/files/run_pod.sh mode=a+x
+- name: chmod +x ./.circleci/ansible/run_pod.sh
+  file: dest=./.circleci/ansible/run_pod.sh mode=a+x
 
 - name: Run Pods with kubernetes
   script:
      cmd: run_pod.sh
-     chdir: /home/ubuntu/root/project/Ansible/
+     chdir: /home/ubuntu/ansible/
 
         
 
