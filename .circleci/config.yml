@@ -64,7 +64,7 @@ jobs:
             cd ./backend
             npm i
             npm run test
-            
+
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -137,11 +137,9 @@ jobs:
             apk add --update openssh-client
 
       - run:
-          name: Deploy backend
+          name: Configure server
           command: |
-            cd ./.circleci/ansible
-            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
- 
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/deploy-backend.yml
 workflows:
   default:
     jobs:
