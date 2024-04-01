@@ -1,7 +1,7 @@
 # Udacity_Capstone
 
 Public GitHub URL 
-GitHub URL:https://github.com/Raghda-aws/Udacity_Capstone.git
+GitHub URL: https://github.com/raghdamahgoub/Udacity_Capstone 
 
 
 # Propose and Scope the Project
